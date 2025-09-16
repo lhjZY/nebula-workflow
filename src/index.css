@@ -18,6 +18,52 @@ html, body, #root {
   .glass-strong {
     @apply backdrop-blur-3xl bg-white/15 dark:bg-neutral-900/40 border border-white/40 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.18)];
   }
+  
+  /* 新增Glass样式变体 */
+  .glass-hover {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .glass-hover:hover {
+    @apply backdrop-blur-3xl bg-white/20 dark:bg-white/15 
+           shadow-[0_16px_50px_rgba(0,0,0,0.15)] 
+           border-white/50 dark:border-white/20;
+  }
+  
+  .glass-selected {
+    @apply backdrop-blur-3xl bg-white/25 dark:bg-white/20 
+           border-indigo-400/50 
+           shadow-[0_0_20px_rgba(99,102,241,0.3)];
+  }
+  
+  .glass-loading {
+    @apply animate-pulse backdrop-blur-xl 
+           bg-gradient-to-r from-white/10 via-white/20 to-white/10 
+           dark:from-white/5 dark:via-white/10 dark:to-white/5;
+  }
+  
+  /* 性能优化 */
+  .glass, .glass-strong {
+    @apply will-change-auto transform-gpu;
+  }
+  
+  .glass-transition {
+    transition: backdrop-filter 200ms ease-out,
+                background-color 200ms ease-out,
+                border-color 200ms ease-out,
+                box-shadow 200ms ease-out;
+  }
+  
+  /* 移动端优化 */
+  @media (max-width: 768px) {
+    .glass {
+      @apply backdrop-blur-xl;
+    }
+    
+    .glass-strong {
+      @apply backdrop-blur-2xl;
+    }
+  }
 }
 
 @theme inline {

@@ -1,8 +1,9 @@
-import { useNavigate } from '@tanstack/react-router'
+// no navigate needed here; hooks handle navigation
 import { useState } from 'react'
 
 import workflowImg from '../assets/bg2.png'
-import { useAuthStore } from '../stores/auth'
+import { useLogin, useRegister } from '../hooks/useAuth'
+// no direct store usage; hooks handle token persistence
 
 import { Button } from '@/components/components/ui/button'
 import { Card, CardContent } from '@/components/components/ui/card'
@@ -13,16 +14,34 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const navigate = useNavigate()
-  const login = useAuthStore((s) => s.login)
+  // navigation and store updates are handled in hooks
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [isRegister, setIsRegister] = useState(false)
 
-  const onSubmit = (e: React.FormEvent) => {
+  const loginMutation = useLogin()
+  const registerMutation = useRegister()
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
-    login(email)
-    navigate({ to: '/todo' })
+    if (!email || !password || submitting) return
+    if (isRegister && !name) return
+    setSubmitting(true)
+    setErrorMsg(null)
+    try {
+      if (isRegister) {
+        await registerMutation.mutateAsync({ email, password, name })
+      } else {
+        await loginMutation.mutateAsync({ email, password })
+      }
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : (isRegister ? '注册失败' : '登录失败'))
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -32,9 +51,15 @@ export function LoginForm({
           <form onSubmit={onSubmit} className="p-6 md:p-8 h-full flex flex-col justify-center">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-muted-foreground text-balance">Login to your Acme Inc account</p>
+                <h1 className="text-2xl font-bold">{isRegister ? 'Create account' : 'Welcome back'}</h1>
+                <p className="text-muted-foreground text-balance">{isRegister ? 'Register your account' : 'Login to your account'}</p>
               </div>
+              {isRegister ? (
+                <div className="grid gap-3">
+                  <label htmlFor="name" className="text-sm">Name</label>
+                  <Input id="name" type="text" placeholder="Your name" required value={name} onChange={(e) => setName(e.target.value)} />
+                </div>
+              ) : null}
               <div className="grid gap-3">
                 <label htmlFor="email" className="text-sm">Email</label>
                 <Input
@@ -53,7 +78,10 @@ export function LoginForm({
                 </div>
                 <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
-              <Button type="submit" className="w-full">Login</Button>
+              {errorMsg ? (
+                <div className="text-destructive text-sm">{errorMsg}</div>
+              ) : null}
+              <Button type="submit" className="w-full" disabled={submitting}>{submitting ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}</Button>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">Or continue with</span>
               </div>
@@ -87,7 +115,17 @@ export function LoginForm({
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account? <a href="#" className="underline underline-offset-4">Sign up</a>
+                {isRegister ? (
+                  <>
+                    Already have an account?{' '}
+                    <button type="button" className="underline underline-offset-4" onClick={() => setIsRegister(false)}>Sign in</button>
+                  </>
+                ) : (
+                  <>
+                    Don&apos;t have an account?{' '}
+                    <button type="button" className="underline underline-offset-4" onClick={() => setIsRegister(true)}>Sign up</button>
+                  </>
+                )}
               </div>
             </div>
           </form>

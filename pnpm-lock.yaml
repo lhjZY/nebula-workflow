@@ -29,6 +29,9 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.131.41
         version: 1.131.41(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@tinymomentum/liquid-glass-react':
+        specifier: ^1.0.6
+        version: 1.0.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1390,6 +1393,12 @@ packages:
   '@tanstack/virtual-file-routes@1.131.2':
     resolution: {integrity: sha512-VEEOxc4mvyu67O+Bl0APtYjwcNRcL9it9B4HKbNgcBTIOEalhk+ufBl4kiqc8WP1sx1+NAaiS+3CcJBhrqaSRg==}
     engines: {node: '>=12'}
+
+  '@tinymomentum/liquid-glass-react@1.0.6':
+    resolution: {integrity: sha512-1rb9aO1mNrSBgiDSijdCF0ToB/s/iyZLL0FimKlpaLe+MV+c/x16XUGuSWzMjm1tMwM7S2xbrMLXROd6Sb3M6Q==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -4626,6 +4635,11 @@ snapshots:
   '@tanstack/store@0.7.5': {}
 
   '@tanstack/virtual-file-routes@1.131.2': {}
+
+  '@tinymomentum/liquid-glass-react@1.0.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   '@types/babel__core@7.20.5':
     dependencies:

@@ -1,20 +1,43 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { LiquidGlassContainer} from '@tinymomentum/liquid-glass-react'; // 暂时注释，类型声明问题
 
+import { useTokenValidation } from '../hooks/useAuth'
 import { useAuthStore } from '../stores/auth'
-
+import '@tinymomentum/liquid-glass-react/dist/components/LiquidGlassBase.css'; // 暂时注释，文件不存在
 export const Route = createRootRoute({
   component: RootComponent,
 })
 
 function RootComponent() {
   const { isAuthenticated, userEmail, logout } = useAuthStore()
+  
+  // 在应用启动时验证token有效性
+  useTokenValidation()
   return (
-    <div className="h-dvh w-full bg-[radial-gradient(1200px_600px_at_70%_-20%,rgba(99,102,241,0.25),transparent),radial-gradient(800px_400px_at_10%_10%,rgba(56,189,248,0.25),transparent)] text-neutral-900 dark:text-neutral-100 flex flex-col">
-      <header className="sticky top-0 z-10 backdrop-saturate-150">
-        <div className="glass glass-surface w-full flex items-center justify-between rounded-b-xl px-6 py-3">
-          <div className="font-semibold tracking-tight">workflow</div>
-          <nav className="flex items-center gap-4 text-sm">
+    <div className="h-dvh w-full dark:text-neutral-100 flex flex-col" style={{ backgroundColor: '#21283B' }}>
+      <header className="sticky top-0 z-10 backdrop-saturate-150" style={{ backgroundColor: '#87CEEB' }}>
+        <div className=" w-full flex items-center justify-between rounded-b-xl px-6 py-3">
+          <div className="font-semibold tracking-tight">
+            <div className="bg-clip-text text-transparent px-4 py-2 rounded-lg">
+              <LiquidGlassContainer
+              width={120}
+              height={60}
+              borderRadius={28}
+              innerShadowColor="#000000"
+              innerShadowBlur={11}
+              innerShadowSpread={-13}
+              glassTintColor="rgba(255, 255, 255, 0)"
+              glassTintOpacity={0}
+              frostBlurRadius={0}
+              noiseFrequency={0.008}
+              noiseStrength={77}
+              > 
+              <div style={{ color: 'white' }}>workflow</div>
+              </LiquidGlassContainer>
+            </div>
+          </div>
+          <nav className="flex items-center gap-4 text-sm ">
             <Link to="/" activeProps={{ className: 'underline' }}>
               首页
             </Link>
