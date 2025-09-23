@@ -1,5 +1,7 @@
 import { create } from 'zustand'
+
 import { createTask, updateTask, getTasks, type task, type taskCreate } from '@/services/task'
+
 
 export type TodoItem = {
   id: string
@@ -140,7 +142,7 @@ function loadInitialState(): TodosState {
         sidebarCollapsed: parsed.sidebarCollapsed || false,
         timeFilter: parsed.timeFilter || 'today',
         projects: parsed.projects || getDefaultProjects(),
-        expandedProjects: parsed.expandedProjects || ['personal', 'work', 'study']
+        expandedProjects: parsed.expandedProjects || []
       }
     }
   } catch {
@@ -153,16 +155,12 @@ function loadInitialState(): TodosState {
     sidebarCollapsed: false,
     timeFilter: 'today',
     projects: getDefaultProjects(),
-    expandedProjects: ['personal', 'work', 'study']
+    expandedProjects: []
   }
 }
 
 function getDefaultProjects(): Project[] {
-  return [
-    { id: 'personal', name: '个人事务', color: '#3b82f6', taskCount: 0, category: 'personal' },
-    { id: 'work', name: '工作任务', color: '#10b981', taskCount: 0, category: 'work' },
-    { id: 'study', name: '学习计划', color: '#f59e0b', taskCount: 0, category: 'study' },
-  ]
+  return [] // 空数组，让用户自己创建项目
 }
 
 function save(state: TodosState) {

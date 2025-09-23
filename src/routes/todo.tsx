@@ -51,7 +51,7 @@ function TodoPage() {
   // 电脑端布局
   if (!isMobile) {
     return (
-      <div className="h-screen p-4 bg-gradient-to-br from-slate-900 to-slate-900">
+      <div className="h-screen p-4">
         <div className="h-full grid grid-cols-12 gap-4">
           {/* 侧边栏 */}
           <div className={`

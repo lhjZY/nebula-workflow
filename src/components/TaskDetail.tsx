@@ -46,12 +46,12 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
 
   if (!taskId || !task) {
     return (
-      <div className="glass-strong rounded-2xl p-6 h-full flex flex-col items-center justify-center text-white/60">
+      <div className="glass-strong rounded-2xl p-6 h-full flex flex-col items-center justify-center text-muted-foreground">
         <div className="text-center">
           <div className="w-16 h-16 glass rounded-full flex items-center justify-center mb-4">
             <Check className="w-8 h-8" />
           </div>
-          <h3 className="text-lg font-medium mb-2">选择一个任务</h3>
+          <h3 className="text-lg font-medium mb-2 text-foreground">选择一个任务</h3>
           <p className="text-sm">点击左侧任务列表中的任意任务查看详情</p>
         </div>
       </div>
@@ -132,12 +132,12 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
             <input
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full text-xl font-semibold bg-transparent border-b border-white/30 
-                         outline-none focus:border-indigo-400 pb-2 text-white"
+              className="w-full text-xl font-semibold bg-transparent border-b border-border 
+                         outline-none focus:border-ring pb-2 text-foreground"
               autoFocus
             />
           ) : (
-            <h2 className={`text-xl font-semibold mb-2 ${task.completed ? 'line-through opacity-60' : ''} text-white`}>
+            <h2 className={`text-xl font-semibold mb-2 ${task.completed ? 'line-through opacity-60' : ''} text-foreground`}>
               {task.title}
             </h2>
           )}
@@ -160,7 +160,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                 style={{ 
                   backgroundColor: `${priorityInfo.color}20`,
                   borderColor: `${priorityInfo.color}50`,
-                  color: '#fff'
+                  color: 'currentColor'
                 }}
               >
                 <priorityInfo.icon className="w-3 h-3" />
@@ -176,7 +176,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
             onClick={handleEdit}
             className={`
               glass rounded-md px-3 py-2 hover:glass-strong transition-all duration-200
-              text-sm font-medium border border-white/30 backdrop-blur-lg
+              text-sm font-medium border border-border backdrop-blur-lg
               ${isEditing ? 'bg-green-500/20 border-green-400/50' : ''}
             `}
           >
@@ -187,7 +187,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
             <button
               onClick={() => setIsEditing(false)}
               className="glass rounded-md px-3 py-2 hover:glass-strong transition-all duration-200
-                         text-sm font-medium border border-white/30 backdrop-blur-lg"
+                         text-sm font-medium border border-border backdrop-blur-lg"
             >
               <X className="w-4 h-4" />
             </button>
@@ -198,64 +198,64 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
       {/* 基本信息 */}
       <div className="space-y-4 mb-6">
         {/* 描述 */}
-        <div className="glass rounded-lg p-4 border border-white/20 backdrop-blur-xl">
+        <div className="glass rounded-lg p-4 border border-border backdrop-blur-xl">
           <div className="flex items-center gap-2 mb-2">
-            <Edit3 className="w-4 h-4 text-white/70" />
-            <span className="text-sm font-medium text-white/80">描述</span>
+            <Edit3 className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">描述</span>
           </div>
           {isEditing ? (
             <textarea
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
               placeholder="添加任务描述..."
-              className="w-full bg-transparent border border-white/20 rounded p-2 text-sm 
-                         outline-none focus:border-indigo-400 text-white placeholder:text-white/50 resize-none"
+              className="w-full bg-transparent border border-border rounded p-2 text-sm 
+                         outline-none focus:border-ring text-foreground placeholder:text-muted-foreground resize-none"
               rows={3}
             />
           ) : (
-            <p className="text-sm text-white/90">
+            <p className="text-sm text-foreground">
               {task.description || '暂无描述'}
             </p>
           )}
         </div>
 
         {/* 时间信息 */}
-        <div className="glass rounded-lg p-4 border border-white/20 backdrop-blur-xl">
+        <div className="glass rounded-lg p-4 border border-border backdrop-blur-xl">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-white/70" />
-                <span className="text-sm font-medium text-white/80">创建时间</span>
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">创建时间</span>
               </div>
-              <span className="text-sm text-white/70">{formatDate(task.createdAt)}</span>
+              <span className="text-sm text-muted-foreground">{formatDate(task.createdAt)}</span>
             </div>
             
             {task.dueDate && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-white/70" />
-                  <span className="text-sm font-medium text-white/80">截止日期</span>
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">截止日期</span>
                 </div>
-                <span className="text-sm text-white/70">{task.dueDate}</span>
+                <span className="text-sm text-muted-foreground">{task.dueDate}</span>
               </div>
             )}
             
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Edit3 className="w-4 h-4 text-white/70" />
-                <span className="text-sm font-medium text-white/80">最后修改</span>
+                <Edit3 className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">最后修改</span>
               </div>
-              <span className="text-sm text-white/70">{formatDate(task.lastModified)}</span>
+              <span className="text-sm text-muted-foreground">{formatDate(task.lastModified)}</span>
             </div>
           </div>
         </div>
 
         {/* 项目信息 */}
-        <div className="glass rounded-lg p-4 border border-white/20 backdrop-blur-xl">
+        <div className="glass rounded-lg p-4 border border-border backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Tag className="w-4 h-4 text-white/70" />
-              <span className="text-sm font-medium text-white/80">所属项目</span>
+              <Tag className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">所属项目</span>
             </div>
             <div className="flex items-center gap-2">
               {project ? (
@@ -264,10 +264,10 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: project.color }}
                   />
-                  <span className="text-sm text-white/90">{project.name}</span>
+                  <span className="text-sm text-foreground">{project.name}</span>
                 </>
               ) : (
-                <span className="text-sm text-white/60">无项目</span>
+                <span className="text-sm text-muted-foreground">无项目</span>
               )}
             </div>
           </div>
@@ -280,7 +280,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
           <button
             onClick={handleCopy}
             className="glass rounded-md px-3 py-2 hover:glass-strong transition-all duration-200
-                       text-sm font-medium border border-white/30 backdrop-blur-lg
+                       text-sm font-medium border border-border backdrop-blur-lg
                        flex items-center justify-center gap-2"
           >
             <Copy className="w-4 h-4" />
@@ -290,7 +290,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
           <button
             onClick={() => setShowMoveDialog(true)}
             className="glass rounded-md px-3 py-2 hover:glass-strong transition-all duration-200
-                       text-sm font-medium border border-white/30 backdrop-blur-lg
+                       text-sm font-medium border border-border backdrop-blur-lg
                        flex items-center justify-center gap-2"
           >
             <Move className="w-4 h-4" />
@@ -300,8 +300,8 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
         
         <button
           onClick={handleDelete}
-          className="w-full glass rounded-md px-3 py-2 hover:bg-red-500/20 hover:border-red-400/50
-                     transition-all duration-200 text-red-100 border-red-400/30 border
+          className="w-full glass rounded-md px-3 py-2 hover:bg-destructive/20 hover:border-destructive/50
+                     transition-all duration-200 text-destructive border-destructive/30 border
                      flex items-center justify-center gap-2"
         >
           <Trash2 className="w-4 h-4" />
@@ -312,26 +312,26 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
       {/* 历史记录 */}
       <div className="flex-1 overflow-hidden">
         <div className="flex items-center gap-2 mb-3">
-          <History className="w-4 h-4 text-white/70" />
-          <span className="text-sm font-medium text-white/80">操作历史</span>
+          <History className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">操作历史</span>
         </div>
         
         <div className="space-y-2 overflow-y-auto max-h-60">
           {task.history.map((record) => (
             <div
               key={record.id}
-              className="glass rounded-md p-3 text-xs border-l-2 border-white/20 backdrop-blur-sm"
+              className="glass rounded-md p-3 text-xs border-l-2 border-border backdrop-blur-sm"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-medium text-white/90 capitalize">
+                <span className="font-medium text-foreground capitalize">
                   {record.action === 'created' && '创建'}
                   {record.action === 'updated' && '更新'}
                   {record.action === 'completed' && '完成'}
                   {record.action === 'moved' && '移动'}
                 </span>
-                <span className="text-white/60">{formatActionTime(record.timestamp)}</span>
+                <span className="text-muted-foreground">{formatActionTime(record.timestamp)}</span>
               </div>
-              <p className="text-white/70">{record.details}</p>
+              <p className="text-muted-foreground">{record.details}</p>
             </div>
           ))}
         </div>
@@ -341,7 +341,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
       {showMoveDialog && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="glass-strong rounded-xl p-6 max-w-sm w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4 text-white">移动到项目</h3>
+            <h3 className="text-lg font-semibold mb-4 text-foreground">移动到项目</h3>
             
             <div className="space-y-2 mb-4">
               <button

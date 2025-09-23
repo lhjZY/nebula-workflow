@@ -156,27 +156,26 @@ export function TodoList({ className }: TodoListProps) {
 
   return (
     <div 
-      className={`rounded-2xl p-6 h-full flex flex-col ${className}`}
-      style={{ backgroundColor: '#21283B' }}
+      className={`glass-strong rounded-2xl p-6 h-full flex flex-col ${className}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-white">任务列表</h2>
-        <div className="text-sm text-white/70">
+        <h2 className="text-xl font-semibold text-foreground">任务列表</h2>
+        <div className="text-sm text-muted-foreground">
           {filteredItems.length} 个任务
         </div>
       </div>
 
       {/* 搜索框 */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="搜索任务..."
-          className="w-full pl-10 pr-4 py-2 rounded-xl glass-strong outline-none ring-1 ring-white/40 
-                     focus:ring-2 focus:ring-indigo-400 backdrop-blur-xl backdrop-saturate-150
-                     placeholder:text-white/60 text-white"
+          className="w-full pl-10 pr-4 py-2 rounded-xl glass-strong outline-none ring-1 ring-border 
+                     focus:ring-2 focus:ring-ring backdrop-blur-xl backdrop-saturate-150
+                     placeholder:text-muted-foreground text-foreground"
         />
       </div>
 
@@ -187,9 +186,9 @@ export function TodoList({ className }: TodoListProps) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="添加新任务..."
-            className="w-full rounded-xl glass-strong px-4 py-3 pr-11 outline-none ring-1 ring-white/40 
-                       focus:ring-2 focus:ring-indigo-400 backdrop-blur-xl backdrop-saturate-150
-                       placeholder:text-white/60 text-white transition-all duration-200"
+            className="w-full rounded-xl glass-strong px-4 py-3 pr-11 outline-none ring-1 ring-border 
+                       focus:ring-2 focus:ring-ring backdrop-blur-xl backdrop-saturate-150
+                       placeholder:text-muted-foreground text-foreground transition-all duration-200"
           />
           <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger asChild>
@@ -198,7 +197,7 @@ export function TodoList({ className }: TodoListProps) {
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 
                            hover:glass transition-all duration-200 backdrop-blur-sm"
               >
-                <CalendarDays className="h-4 w-4 text-white/70" />
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="p-0">
@@ -230,7 +229,7 @@ export function TodoList({ className }: TodoListProps) {
         </div>
         <button 
           type="submit"
-          className="glass rounded-xl px-4 py-2 text-white hover:glass-strong 
+          className="glass rounded-xl px-4 py-2 text-foreground hover:glass-strong 
                      transition-all duration-200 backdrop-blur-lg flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
@@ -244,8 +243,8 @@ export function TodoList({ className }: TodoListProps) {
           onClick={() => setFilter('all')}
           className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
             filter === 'all' 
-              ? 'glass-strong text-white border border-indigo-400/50' 
-              : 'glass hover:glass-strong text-white/80'
+              ? 'glass-strong text-foreground border border-primary/50' 
+              : 'glass hover:glass-strong text-muted-foreground'
           }`}
         >
           全部
@@ -254,8 +253,8 @@ export function TodoList({ className }: TodoListProps) {
           onClick={() => setFilter('active')}
           className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
             filter === 'active' 
-              ? 'glass-strong text-white border border-indigo-400/50' 
-              : 'glass hover:glass-strong text-white/80'
+              ? 'glass-strong text-foreground border border-primary/50' 
+              : 'glass hover:glass-strong text-muted-foreground'
           }`}
         >
           进行中
@@ -264,8 +263,8 @@ export function TodoList({ className }: TodoListProps) {
           onClick={() => setFilter('completed')}
           className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
             filter === 'completed' 
-              ? 'glass-strong text-white border border-indigo-400/50' 
-              : 'glass hover:glass-strong text-white/80'
+              ? 'glass-strong text-foreground border border-primary/50' 
+              : 'glass hover:glass-strong text-muted-foreground'
           }`}
         >
           已完成
@@ -273,7 +272,7 @@ export function TodoList({ className }: TodoListProps) {
         <div className="ml-auto" />
         <button 
           onClick={clearCompleted} 
-          className="rounded-md glass px-3 py-1.5 hover:glass-strong text-white/80 transition-all duration-200"
+          className="rounded-md glass px-3 py-1.5 hover:glass-strong text-muted-foreground transition-all duration-200"
         >
           清除已完成
         </button>
@@ -282,7 +281,7 @@ export function TodoList({ className }: TodoListProps) {
       {/* 任务列表 */}
       <div className="flex-1 overflow-y-auto space-y-2">
         {filteredItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-32 text-white/60">
+          <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
             <div className="w-12 h-12 glass rounded-full flex items-center justify-center mb-3">
               <Check className="w-6 h-6" />
             </div>
@@ -304,11 +303,11 @@ export function TodoList({ className }: TodoListProps) {
                   glass rounded-xl p-3 hover:glass-strong transition-all duration-200
                   cursor-pointer border-l-2 backdrop-blur-2xl backdrop-saturate-150
                   ${isSelected 
-                    ? 'glass-strong border-l-indigo-400 bg-indigo-500/10 shadow-[0_0_20px_rgba(99,102,241,0.2)]' 
-                    : 'border-l-transparent hover:border-l-indigo-400/50'
+                    ? 'glass-strong border-l-primary bg-primary/10 shadow-[0_0_20px_rgba(var(--primary),0.2)]' 
+                    : 'border-l-transparent hover:border-l-primary/50'
                   }
                   ${item.completed ? 'opacity-60' : ''}
-                  ${overdue && !item.completed ? 'border-l-red-400 bg-red-500/5' : ''}
+                  ${overdue && !item.completed ? 'border-l-destructive bg-destructive/5' : ''}
                 `}
               >
                 <div className="flex items-start gap-3">
@@ -323,7 +322,7 @@ export function TodoList({ className }: TodoListProps) {
                       transition-all duration-200
                       ${item.completed 
                         ? 'bg-green-500 border-green-500' 
-                        : 'border-white/40 hover:border-white/60'
+                        : 'border-border hover:border-foreground/60'
                       }
                     `}
                   >
@@ -341,7 +340,7 @@ export function TodoList({ className }: TodoListProps) {
                       onClick={(e) => e.stopPropagation()}
                       className={`
                         w-full bg-transparent outline-none font-medium
-                        ${item.completed ? 'line-through opacity-60' : ''} text-white
+                        ${item.completed ? 'line-through opacity-60' : ''} text-foreground
                       `}
                     />
                     
@@ -370,8 +369,8 @@ export function TodoList({ className }: TodoListProps) {
                         <span className={`
                           px-2 py-0.5 rounded-full flex items-center gap-1
                           ${overdue && !item.completed 
-                            ? 'bg-red-500/20 text-red-200 border border-red-400/30' 
-                            : 'text-white/70 border border-white/20'
+                            ? 'bg-destructive/20 text-destructive-foreground border border-destructive/30' 
+                            : 'text-muted-foreground border border-border'
                           }
                         `}>
                           <CalendarDays className="w-3 h-3" />
@@ -382,7 +381,7 @@ export function TodoList({ className }: TodoListProps) {
                       
                       {/* 优先级指示器 */}
                       {item.priority < 4 && (
-                        <span className="px-2 py-0.5 rounded-full text-white/70 border border-white/20">
+                        <span className="px-2 py-0.5 rounded-full text-muted-foreground border border-border">
                           优先级: {item.priority === 1 ? '高' : item.priority === 2 ? '中' : '低'}
                         </span>
                       )}
@@ -398,7 +397,7 @@ export function TodoList({ className }: TodoListProps) {
                       }
                     }}
                     className="opacity-0 hover:opacity-100 transition-opacity duration-200
-                               glass rounded-md p-1.5 hover:glass-strong text-white/70 hover:text-red-200"
+                               glass rounded-md p-1.5 hover:glass-strong text-muted-foreground hover:text-destructive"
                   >
                     <X className="w-3 h-3" />
                   </button>
