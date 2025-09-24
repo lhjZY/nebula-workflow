@@ -1,4 +1,3 @@
-
 import { tanstackRouter } from '@tanstack/router-vite-plugin'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
@@ -16,9 +15,9 @@ export default defineConfig({
     port: 5178,
     proxy: {
       '/api/v1': {
-        target: 'http://localhost:9001',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       },
     },
-  }
+  },
 })

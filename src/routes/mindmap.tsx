@@ -32,7 +32,7 @@ function MindmapPage() {
 
   // 稳定的初始数据计算
   const initialData = useMemo(() => {
-    if (!activeFile) return { elements: [], appState: {} }
+    if (!activeFile) return undefined
 
     const { elements, appState } = activeFile.data
 
@@ -126,7 +126,7 @@ function MindmapPage() {
             {activeFile ? (
               <Excalidraw
                 key={`mindmap-${activeFile.id}-${theme}`} // 包含主题的稳定key，确保主题变化时重新渲染
-                initialData={initialData as unknown}
+                initialData={initialData}
                 onChange={handleChange}
                 theme={theme}
                 UIOptions={uiOptions}

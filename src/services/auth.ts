@@ -7,13 +7,13 @@ export type AuthResponse = { token: string }
 export type UserInfo = { email: string; name?: string; id?: string }
 
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
-  return http('/auth/login', { method: 'POST', body: payload })
+  return http('/auth/login', { method: 'POST', body: payload }) as Promise<AuthResponse>
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthResponse> {
-  return http('/auth/register', { method: 'POST', body: payload })
+  return http('/auth/register', { method: 'POST', body: payload }) as Promise<AuthResponse>
 }
 
 export async function info(): Promise<UserInfo> {
-  return http('/auth/info', { method: 'GET' })
+  return http('/auth/info', { method: 'GET' }) as Promise<UserInfo>
 }
