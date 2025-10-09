@@ -1,7 +1,9 @@
+import { v4 as uuidv4 } from 'uuid'
 import { create } from 'zustand'
+
+import { errorHandler, safeExecute } from '@/lib/error-handler'
 import * as mindmapApi from '@/services/mindmap'
 import { debounce, isOnline } from '@/services/mindmap'
-import { errorHandler, safeExecute } from '@/lib/error-handler'
 
 export type MindmapFile = {
   id: string
@@ -28,15 +30,18 @@ type MindmapsActions = {
   deleteFile: (id: string) => void
   renameFile: (id: string, newName: string) => void
   setActiveFile: (id: string) => void
-  updateFileData: (id: string, data: { elements?: unknown; appState?: Record<string, unknown> }) => void
-  
+  updateFileData: (
+    id: string,
+    data: { elements?: unknown; appState?: Record<string, unknown> },
+  ) => void
+
   // 新增同步方法
   syncWithServer: () => Promise<void>
   loadFromServer: (fileId: string) => Promise<void>
   markFileDirty: (fileId: string) => void
   handleSyncConflict: (fileId: string, resolution: 'local' | 'server') => void
   setSyncStatus: (fileId: string, status: MindmapFile['syncStatus']) => void
-  
+
   // 新增缓存策略方法
   loadWithCache: (fileId: string) => Promise<void>
   preloadFromServer: () => Promise<void>
@@ -47,7 +52,7 @@ const STORAGE_KEY = 'workflow_mindmaps_v1'
 
 // 创建默认文件
 const createDefaultFile = (): MindmapFile => ({
-  id: crypto.randomUUID(),
+  id: uuidv4(),
   name: '新思维导图',
   createdAt: Date.now(),
   updatedAt: Date.now(),
@@ -64,16 +69,16 @@ const createDefaultFile = (): MindmapFile => ({
 const migrateOldData = (): MindmapFile | null => {
   const oldData = localStorage.getItem('workflow_mindmap_v1')
   if (!oldData) return null
-  
+
   try {
     const parsed = JSON.parse(oldData)
     if (!parsed || typeof parsed !== 'object') return null
-    
+
     // 清理旧数据
     localStorage.removeItem('workflow_mindmap_v1')
-    
+
     return {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       name: '迁移的思维导图',
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -100,7 +105,7 @@ function loadInitialState(): MindmapsState {
   } catch {
     // 忽略localStorage错误
   }
-  
+
   // 尝试迁移旧数据
   const migratedFile = migrateOldData()
   if (migratedFile) {
@@ -109,7 +114,7 @@ function loadInitialState(): MindmapsState {
       activeFileId: migratedFile.id,
     }
   }
-  
+
   // 创建默认文件
   const defaultFile = createDefaultFile()
   return {
@@ -131,7 +136,7 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
 
   createFile: (name: string) => {
     const newFile: MindmapFile = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       name: name.trim() || '新思维导图',
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -143,27 +148,27 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
       version: 1,
       lastSyncTime: 0,
     }
-    
+
     const next: MindmapsState = {
       files: [...get().files, newFile],
       activeFileId: newFile.id,
     }
     set(next)
     save(next)
-    
+
     return newFile.id
   },
 
   deleteFile: (id: string) => {
     const state = get()
-    const newFiles = state.files.filter(file => file.id !== id)
+    const newFiles = state.files.filter((file) => file.id !== id)
     let newActiveFileId = state.activeFileId
-    
+
     // 如果删除的是当前文件，选择另一个文件
     if (state.activeFileId === id) {
       newActiveFileId = newFiles.length > 0 ? newFiles[0].id : null
     }
-    
+
     const next: MindmapsState = {
       files: newFiles,
       activeFileId: newActiveFileId,
@@ -175,10 +180,10 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
   renameFile: (id: string, newName: string) => {
     const next: MindmapsState = {
       ...get(),
-      files: get().files.map(file =>
+      files: get().files.map((file) =>
         file.id === id
           ? { ...file, name: newName.trim() || '未命名', updatedAt: Date.now() }
-          : file
+          : file,
       ),
     }
     set(next)
@@ -187,7 +192,7 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
 
   setActiveFile: (id: string) => {
     const { files } = get()
-    const fileExists = files.some(file => file.id === id)
+    const fileExists = files.some((file) => file.id === id)
     if (fileExists) {
       const next: MindmapsState = { ...get(), activeFileId: id }
       set(next)
@@ -195,23 +200,26 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
     }
   },
 
-  updateFileData: (id: string, data: { elements?: unknown; appState?: Record<string, unknown> }) => {
+  updateFileData: (
+    id: string,
+    data: { elements?: unknown; appState?: Record<string, unknown> },
+  ) => {
     const next: MindmapsState = {
       ...get(),
-      files: get().files.map(file =>
+      files: get().files.map((file) =>
         file.id === id
-          ? { 
-              ...file, 
+          ? {
+              ...file,
               data: { ...data },
               updatedAt: Date.now(),
-              syncStatus: 'dirty' // 标记为需要同步
+              syncStatus: 'dirty', // 标记为需要同步
             }
-          : file
+          : file,
       ),
     }
     set(next)
     save(next)
-    
+
     // 触发自动同步
     triggerAutoSync()
   },
@@ -219,57 +227,60 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
   // 同步方法的实现
   syncWithServer: async () => {
     const state = get()
-    const dirtyFiles = state.files.filter(file => file.syncStatus === 'dirty')
-    
+    const dirtyFiles = state.files.filter((file) => file.syncStatus === 'dirty')
+
     if (!isOnline() || dirtyFiles.length === 0) {
       return
     }
 
     // 标记正在同步
-    dirtyFiles.forEach(file => {
+    dirtyFiles.forEach((file) => {
       get().setSyncStatus(file.id, 'syncing')
     })
 
-    const operations: mindmapApi.SyncOperation[] = dirtyFiles.map(file => ({
+    const operations: mindmapApi.SyncOperation[] = dirtyFiles.map((file) => ({
       type: 'update',
       id: file.id,
-      data: mindmapApi.clientToServerFile(file)
+      data: mindmapApi.clientToServerFile(file),
     }))
 
     const syncResult = await safeExecute(
       () => mindmapApi.batchSyncMindmaps({ operations }),
       undefined,
       'sync',
-      { fileCount: dirtyFiles.length, fileIds: dirtyFiles.map(f => f.id) }
+      { fileCount: dirtyFiles.length, fileIds: dirtyFiles.map((f) => f.id) },
     )
 
     if (syncResult) {
       // 处理同步结果
-      syncResult.results.forEach(result => {
+      syncResult.results.forEach((result) => {
         if (result.success && result.data) {
           const updatedFile = mindmapApi.serverToClientFile(result.data)
           const next: MindmapsState = {
             ...get(),
-            files: get().files.map(file =>
-              file.id === result.id ? updatedFile : file
-            ),
+            files: get().files.map((file) => (file.id === result.id ? updatedFile : file)),
           }
           set(next)
         } else {
           // 同步失败，恢复为 dirty 状态
           get().setSyncStatus(result.id, 'dirty')
           if (result.error) {
-            errorHandler.logError('sync', `文件 ${result.id} 同步失败: ${result.error}`, undefined, {
-              fileId: result.id,
-              errorMessage: result.error
-            })
+            errorHandler.logError(
+              'sync',
+              `文件 ${result.id} 同步失败: ${result.error}`,
+              undefined,
+              {
+                fileId: result.id,
+                errorMessage: result.error,
+              },
+            )
           }
         }
       })
       save(get())
     } else {
       // 批量同步失败，恢复所有文件为 dirty 状态
-      dirtyFiles.forEach(file => {
+      dirtyFiles.forEach((file) => {
         get().setSyncStatus(file.id, 'dirty')
       })
     }
@@ -282,20 +293,18 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
     }
 
     get().setSyncStatus(fileId, 'syncing')
-    
+
     const serverFile = await safeExecute(
       () => mindmapApi.getMindmapFile(fileId),
       undefined,
       'sync',
-      { operation: 'loadFromServer', fileId }
+      { operation: 'loadFromServer', fileId },
     )
 
     if (serverFile) {
       const next: MindmapsState = {
         ...get(),
-        files: get().files.map(file =>
-          file.id === fileId ? serverFile : file
-        ),
+        files: get().files.map((file) => (file.id === fileId ? serverFile : file)),
       }
       set(next)
       save(next)
@@ -307,10 +316,8 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
   markFileDirty: (fileId: string) => {
     const next: MindmapsState = {
       ...get(),
-      files: get().files.map(file =>
-        file.id === fileId
-          ? { ...file, syncStatus: 'dirty' }
-          : file
+      files: get().files.map((file) =>
+        file.id === fileId ? { ...file, syncStatus: 'dirty' } : file,
       ),
     }
     set(next)
@@ -319,7 +326,7 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
 
   handleSyncConflict: (fileId: string, resolution: 'local' | 'server') => {
     const state = get()
-    const file = state.files.find(f => f.id === fileId)
+    const file = state.files.find((f) => f.id === fileId)
     if (!file) return
 
     if (resolution === 'server') {
@@ -335,10 +342,8 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
   setSyncStatus: (fileId: string, status: MindmapFile['syncStatus']) => {
     const next: MindmapsState = {
       ...get(),
-      files: get().files.map(file =>
-        file.id === fileId
-          ? { ...file, syncStatus: status }
-          : file
+      files: get().files.map((file) =>
+        file.id === fileId ? { ...file, syncStatus: status } : file,
       ),
     }
     set(next)
@@ -348,23 +353,25 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
   // 智能缓存策略方法
   loadWithCache: async (fileId: string) => {
     const state = get()
-    const localFile = state.files.find(f => f.id === fileId)
-    
+    const localFile = state.files.find((f) => f.id === fileId)
+
     // 第一层：内存优先 - 如果已有数据直接返回
     if (localFile) {
       console.log('从内存缓存加载文件:', fileId)
-      
+
       // 后台检查更新（仅在在线时）
       if (isOnline() && localFile.syncStatus !== 'syncing') {
         setTimeout(() => {
-          get().loadFromServer(fileId).catch(() => {
-            // 静默失败，不影响用户体验
-          })
+          get()
+            .loadFromServer(fileId)
+            .catch(() => {
+              // 静默失败，不影响用户体验
+            })
         }, 100)
       }
       return
     }
-    
+
     // 第二层：从服务端加载
     if (isOnline()) {
       console.log('从服务端加载文件:', fileId)
@@ -383,12 +390,12 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
     try {
       console.log('开始预加载文件列表')
       const serverFiles = await mindmapApi.getMindmapFiles()
-      
+
       const next: MindmapsState = {
         files: serverFiles,
-        activeFileId: get().activeFileId || (serverFiles[0]?.id || null)
+        activeFileId: get().activeFileId || serverFiles[0]?.id || null,
       }
-      
+
       set(next)
       save(next)
       console.log(`预加载完成，共 ${serverFiles.length} 个文件`)
@@ -400,10 +407,10 @@ export const useMindmapsStore = create<MindmapsState & MindmapsActions>()((set, 
   getActiveFileWithFallback: () => {
     const state = get()
     if (!state.activeFileId) return null
-    
-    const activeFile = state.files.find(f => f.id === state.activeFileId)
+
+    const activeFile = state.files.find((f) => f.id === state.activeFileId)
     if (activeFile) return activeFile
-    
+
     // 如果活动文件不存在，返回第一个文件
     return state.files[0] || null
   },
@@ -427,15 +434,15 @@ export { triggerAutoSync }
 if (typeof window !== 'undefined') {
   window.addEventListener('network-restored', () => {
     console.log('网络恢复，开始自动同步')
-    
+
     const store = useMindmapsStore.getState()
-    const dirtyFiles = store.files.filter(f => f.syncStatus === 'dirty')
-    
+    const dirtyFiles = store.files.filter((f) => f.syncStatus === 'dirty')
+
     if (dirtyFiles.length > 0) {
       console.log(`发现 ${dirtyFiles.length} 个未同步文件，开始同步`)
       store.syncWithServer()
     }
-    
+
     // 预加载服务端数据
     store.preloadFromServer()
   })

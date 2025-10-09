@@ -1,31 +1,34 @@
-import { useState, useMemo } from 'react'
 import { CalendarDays, Plus, Search, Check, X } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+
 import { useTodosStore, type TodoItem } from '../stores/todos'
+
+import { Button } from '@/components/components/ui/button'
 import { Calendar } from '@/components/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/components/ui/popover'
-import { Button } from '@/components/components/ui/button'
 
 interface TodoListProps {
   className?: string
 }
 
 export function TodoList({ className }: TodoListProps) {
-  const { 
-    items, 
-    filter, 
-    timeFilter, 
+  const {
+    items,
+    filter,
+    timeFilter,
     selectedItemId,
     projects,
-    remove, 
-    setFilter, 
-    clearCompleted, 
-    addWithAPI, 
+    remove,
+    setFilter,
+    clearCompleted,
+    addWithAPI,
     updateWithAPI,
-    setSelectedItem 
+    setSelectedItem,
   } = useTodosStore()
   console.log('TodoList - items:', items)
   console.log('TodoList - filter:', filter, 'timeFilter:', timeFilter)
-  
+
   const [title, setTitle] = useState('')
   const [due, setDue] = useState<Date | undefined>(undefined)
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
@@ -50,22 +53,22 @@ export function TodoList({ className }: TodoListProps) {
 
     switch (timeFilter) {
       case 'today': {
-        const todayTasks = result.filter(item => item.dueDate === today)
+        const todayTasks = result.filter((item) => item.dueDate === today)
         // 如果没有今天的任务，显示所有没有日期的任务
-        result = todayTasks.length > 0 ? todayTasks : result.filter(item => !item.dueDate)
+        result = todayTasks.length > 0 ? todayTasks : result.filter((item) => !item.dueDate)
         break
       }
       case 'tomorrow':
-        result = result.filter(item => item.dueDate === tomorrow)
+        result = result.filter((item) => item.dueDate === tomorrow)
         break
       case 'week':
-        result = result.filter(item => item.dueDate && item.dueDate <= weekLater)
+        result = result.filter((item) => item.dueDate && item.dueDate <= weekLater)
         break
       case 'overdue':
-        result = result.filter(item => item.dueDate && item.dueDate < today)
+        result = result.filter((item) => item.dueDate && item.dueDate < today)
         break
       case 'no-date':
-        result = result.filter(item => !item.dueDate)
+        result = result.filter((item) => !item.dueDate)
         break
       default:
         // 默认情况下显示所有任务，不进行时间过滤
@@ -76,9 +79,10 @@ export function TodoList({ className }: TodoListProps) {
     // 按搜索词过滤
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase()
-      result = result.filter(item => 
-        item.title.toLowerCase().includes(term) ||
-        (item.description && item.description.toLowerCase().includes(term))
+      result = result.filter(
+        (item) =>
+          item.title.toLowerCase().includes(term) ||
+          (item.description && item.description.toLowerCase().includes(term)),
       )
     }
 
@@ -95,46 +99,52 @@ export function TodoList({ className }: TodoListProps) {
     e.preventDefault()
     const v = title.trim()
     if (!v) return
-    
+
     const dueDate = due ? due.toISOString().slice(0, 10) : undefined
     await addWithAPI(v, dueDate)
-    
+
     setTitle('')
     setDue(undefined)
   }
 
   const onToggle = async (id: string) => {
-    const item = items.find(t => t.id === id)
+    const item = items.find((t) => t.id === id)
     if (!item) return
-    
+
     const updatedItem: TodoItem = {
       ...item,
       completed: !item.completed,
       lastModified: Date.now(),
-      history: [...item.history, {
-        id: crypto.randomUUID(),
-        action: 'updated',
-        timestamp: Date.now(),
-        details: `标记为${!item.completed ? '已完成' : '未完成'}`
-      }]
+      history: [
+        ...item.history,
+        {
+          id: uuidv4(),
+          action: 'updated',
+          timestamp: Date.now(),
+          details: `标记为${!item.completed ? '已完成' : '未完成'}`,
+        },
+      ],
     }
     await updateWithAPI(updatedItem)
   }
 
   const onEdit = async (id: string, newTitle: string) => {
-    const item = items.find(t => t.id === id)
+    const item = items.find((t) => t.id === id)
     if (!item) return
-    
+
     const updatedItem: TodoItem = {
       ...item,
       title: newTitle,
       lastModified: Date.now(),
-      history: [...item.history, {
-        id: crypto.randomUUID(),
-        action: 'updated',
-        timestamp: Date.now(),
-        details: `修改标题: ${item.title} → ${newTitle}`
-      }]
+      history: [
+        ...item.history,
+        {
+          id: uuidv4(),
+          action: 'updated',
+          timestamp: Date.now(),
+          details: `修改标题: ${item.title} → ${newTitle}`,
+        },
+      ],
     }
     await updateWithAPI(updatedItem)
   }
@@ -145,7 +155,7 @@ export function TodoList({ className }: TodoListProps) {
 
   const getProjectInfo = (projectId: string | null | undefined) => {
     if (!projectId) return null
-    return projects.find(p => p.id === projectId)
+    return projects.find((p) => p.id === projectId)
   }
 
   const isOverdue = (dueDate?: string) => {
@@ -155,15 +165,11 @@ export function TodoList({ className }: TodoListProps) {
   }
 
   return (
-    <div 
-      className={`glass-strong rounded-2xl p-6 h-full flex flex-col ${className}`}
-    >
+    <div className={`glass-strong rounded-2xl p-6 h-full flex flex-col ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-foreground">任务列表</h2>
-        <div className="text-sm text-muted-foreground">
-          {filteredItems.length} 个任务
-        </div>
+        <div className="text-sm text-muted-foreground">{filteredItems.length} 个任务</div>
       </div>
 
       {/* 搜索框 */}
@@ -192,8 +198,8 @@ export function TodoList({ className }: TodoListProps) {
           />
           <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger asChild>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 
                            hover:glass transition-all duration-200 backdrop-blur-sm"
               >
@@ -201,15 +207,11 @@ export function TodoList({ className }: TodoListProps) {
               </button>
             </PopoverTrigger>
             <PopoverContent className="p-0">
-              <Calendar
-                mode="single"
-                selected={due}
-                onSelect={setDue}
-              />
+              <Calendar mode="single" selected={due} onSelect={setDue} />
               <div className="flex justify-between gap-2 p-3 border-t">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     setDue(undefined)
                     setIsCalendarOpen(false)
@@ -217,17 +219,14 @@ export function TodoList({ className }: TodoListProps) {
                 >
                   清除日期
                 </Button>
-                <Button 
-                  size="sm" 
-                  onClick={() => setIsCalendarOpen(false)}
-                >
+                <Button size="sm" onClick={() => setIsCalendarOpen(false)}>
                   确定选择
                 </Button>
               </div>
             </PopoverContent>
           </Popover>
         </div>
-        <button 
+        <button
           type="submit"
           className="glass rounded-xl px-4 py-2 text-foreground hover:glass-strong 
                      transition-all duration-200 backdrop-blur-lg flex items-center gap-2"
@@ -242,8 +241,8 @@ export function TodoList({ className }: TodoListProps) {
         <button
           onClick={() => setFilter('all')}
           className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
-            filter === 'all' 
-              ? 'glass-strong text-foreground border border-primary/50' 
+            filter === 'all'
+              ? 'glass-strong text-foreground border border-primary/50'
               : 'glass hover:glass-strong text-muted-foreground'
           }`}
         >
@@ -252,8 +251,8 @@ export function TodoList({ className }: TodoListProps) {
         <button
           onClick={() => setFilter('active')}
           className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
-            filter === 'active' 
-              ? 'glass-strong text-foreground border border-primary/50' 
+            filter === 'active'
+              ? 'glass-strong text-foreground border border-primary/50'
               : 'glass hover:glass-strong text-muted-foreground'
           }`}
         >
@@ -262,16 +261,16 @@ export function TodoList({ className }: TodoListProps) {
         <button
           onClick={() => setFilter('completed')}
           className={`rounded-md px-3 py-1.5 transition-all duration-200 ${
-            filter === 'completed' 
-              ? 'glass-strong text-foreground border border-primary/50' 
+            filter === 'completed'
+              ? 'glass-strong text-foreground border border-primary/50'
               : 'glass hover:glass-strong text-muted-foreground'
           }`}
         >
           已完成
         </button>
         <div className="ml-auto" />
-        <button 
-          onClick={clearCompleted} 
+        <button
+          onClick={clearCompleted}
           className="rounded-md glass px-3 py-1.5 hover:glass-strong text-muted-foreground transition-all duration-200"
         >
           清除已完成
@@ -285,16 +284,14 @@ export function TodoList({ className }: TodoListProps) {
             <div className="w-12 h-12 glass rounded-full flex items-center justify-center mb-3">
               <Check className="w-6 h-6" />
             </div>
-            <p className="text-sm">
-              {searchTerm ? '没有找到匹配的任务' : '暂无任务'}
-            </p>
+            <p className="text-sm">{searchTerm ? '没有找到匹配的任务' : '暂无任务'}</p>
           </div>
         ) : (
           filteredItems.map((item) => {
             const project = getProjectInfo(item.projectId)
             const isSelected = item.id === selectedItemId
             const overdue = isOverdue(item.dueDate)
-            
+
             return (
               <div
                 key={item.id}
@@ -302,9 +299,10 @@ export function TodoList({ className }: TodoListProps) {
                 className={`
                   glass rounded-xl p-3 hover:glass-strong transition-all duration-200
                   cursor-pointer border-l-2 backdrop-blur-2xl backdrop-saturate-150
-                  ${isSelected 
-                    ? 'glass-strong border-l-primary bg-primary/10 shadow-[0_0_20px_rgba(var(--primary),0.2)]' 
-                    : 'border-l-transparent hover:border-l-primary/50'
+                  ${
+                    isSelected
+                      ? 'glass-strong border-l-primary bg-primary/10 shadow-[0_0_20px_rgba(var(--primary),0.2)]'
+                      : 'border-l-transparent hover:border-l-primary/50'
                   }
                   ${item.completed ? 'opacity-60' : ''}
                   ${overdue && !item.completed ? 'border-l-destructive bg-destructive/5' : ''}
@@ -320,9 +318,10 @@ export function TodoList({ className }: TodoListProps) {
                     className={`
                       mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center
                       transition-all duration-200
-                      ${item.completed 
-                        ? 'bg-green-500 border-green-500' 
-                        : 'border-border hover:border-foreground/60'
+                      ${
+                        item.completed
+                          ? 'bg-green-500 border-green-500'
+                          : 'border-border hover:border-foreground/60'
                       }
                     `}
                   >
@@ -343,42 +342,45 @@ export function TodoList({ className }: TodoListProps) {
                         ${item.completed ? 'line-through opacity-60' : ''} text-foreground
                       `}
                     />
-                    
+
                     {/* 任务元信息 */}
                     <div className="flex items-center gap-2 mt-1 text-xs">
                       {/* 项目标签 */}
                       {project && (
-                        <span 
+                        <span
                           className="px-2 py-0.5 rounded-full flex items-center gap-1"
-                          style={{ 
+                          style={{
                             backgroundColor: `${project.color}20`,
                             color: project.color,
-                            border: `1px solid ${project.color}40`
+                            border: `1px solid ${project.color}40`,
                           }}
                         >
-                          <div 
+                          <div
                             className="w-1.5 h-1.5 rounded-full"
                             style={{ backgroundColor: project.color }}
                           />
                           {project.name}
                         </span>
                       )}
-                      
+
                       {/* 截止日期 */}
                       {item.dueDate && (
-                        <span className={`
+                        <span
+                          className={`
                           px-2 py-0.5 rounded-full flex items-center gap-1
-                          ${overdue && !item.completed 
-                            ? 'bg-destructive/20 text-destructive-foreground border border-destructive/30' 
-                            : 'text-muted-foreground border border-border'
+                          ${
+                            overdue && !item.completed
+                              ? 'bg-destructive/20 text-destructive-foreground border border-destructive/30'
+                              : 'text-muted-foreground border border-border'
                           }
-                        `}>
+                        `}
+                        >
                           <CalendarDays className="w-3 h-3" />
                           {item.dueDate}
                           {overdue && !item.completed && ' (逾期)'}
                         </span>
                       )}
-                      
+
                       {/* 优先级指示器 */}
                       {item.priority < 4 && (
                         <span className="px-2 py-0.5 rounded-full text-muted-foreground border border-border">
@@ -389,7 +391,7 @@ export function TodoList({ className }: TodoListProps) {
                   </div>
 
                   {/* 删除按钮 */}
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation()
                       if (confirm('确定要删除这个任务吗？')) {

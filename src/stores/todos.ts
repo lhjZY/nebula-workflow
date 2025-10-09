@@ -1,7 +1,7 @@
+import { v4 as uuidv4 } from 'uuid'
 import { create } from 'zustand'
 
 import { createTask, updateTask, getTasks, type task, type taskCreate } from '@/services/task'
-
 
 export type TodoItem = {
   id: string
@@ -11,7 +11,7 @@ export type TodoItem = {
   dueDate?: string
   // 新增字段
   projectId?: string | null
-  priority: 1 | 2 | 3 | 4  // 1-高 2-中 3-低 4-无
+  priority: 1 | 2 | 3 | 4 // 1-高 2-中 3-低 4-无
   description?: string
   lastModified: number
   history: TaskHistory[]
@@ -55,7 +55,7 @@ type TodosActions = {
   addWithAPI: (title: string, dueDate?: string) => Promise<void>
   updateWithAPI: (item: TodoItem) => Promise<void>
   removeWithAPI: (id: string) => Promise<void>
-  refreshFromAPI: () => Promise<void>  // 手动刷新
+  refreshFromAPI: () => Promise<void> // 手动刷新
   // 新增方法
   setSelectedItem: (id: string | null) => void
   setSidebarCollapsed: (collapsed: boolean) => void
@@ -86,7 +86,7 @@ function todoToTaskCreate(todo: Omit<TodoItem, 'id' | 'createdAt'>): taskCreate 
 // 数据映射函数：从TodoItem转换为task
 function todoToTask(todo: TodoItem): task {
   const now = new Date().toISOString()
-  
+
   return {
     id: todo.id,
     userId: '', // 将由后端填充
@@ -110,9 +110,9 @@ function taskToTodo(task: task): TodoItem {
   const now = Date.now()
   const createdTime = task.createdAt ? new Date(task.createdAt).getTime() : now
   const updatedTime = task.updatedAt ? new Date(task.updatedAt).getTime() : now
-  
+
   return {
-    id: task.id || crypto.randomUUID(),
+    id: task.id || uuidv4(),
     title: task.title || '未命名任务',
     completed: task.status === 'completed',
     createdAt: createdTime,
@@ -120,12 +120,14 @@ function taskToTodo(task: task): TodoItem {
     priority: (task.priority as 1 | 2 | 3 | 4) || 4, // 确保类型安全
     description: task.description || undefined,
     lastModified: updatedTime,
-    history: [{
-      id: crypto.randomUUID(),
-      action: 'created',
-      timestamp: createdTime,
-      details: `创建任务: ${task.title || '未命名任务'}`
-    }]
+    history: [
+      {
+        id: uuidv4(),
+        action: 'created',
+        timestamp: createdTime,
+        details: `创建任务: ${task.title || '未命名任务'}`,
+      },
+    ],
   }
 }
 
@@ -142,20 +144,20 @@ function loadInitialState(): TodosState {
         sidebarCollapsed: parsed.sidebarCollapsed || false,
         timeFilter: parsed.timeFilter || 'today',
         projects: parsed.projects || getDefaultProjects(),
-        expandedProjects: parsed.expandedProjects || []
+        expandedProjects: parsed.expandedProjects || [],
       }
     }
   } catch {
     // 忽略localStorage错误
   }
-  return { 
-    items: [], 
+  return {
+    items: [],
     filter: 'all',
     selectedItemId: null,
     sidebarCollapsed: false,
     timeFilter: 'today',
     projects: getDefaultProjects(),
-    expandedProjects: []
+    expandedProjects: [],
   }
 }
 
@@ -175,7 +177,7 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
   ...loadInitialState(),
   add: (title, dueDate) => {
     const newItem: TodoItem = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       title,
       completed: false,
       createdAt: Date.now(),
@@ -183,12 +185,14 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
       priority: 4, // 默认无优先级
       description: undefined,
       lastModified: Date.now(),
-      history: [{
-        id: crypto.randomUUID(),
-        action: 'created',
-        timestamp: Date.now(),
-        details: `创建任务: ${title}`
-      }]
+      history: [
+        {
+          id: uuidv4(),
+          action: 'created',
+          timestamp: Date.now(),
+          details: `创建任务: ${title}`,
+        },
+      ],
     }
     const next: TodosState = {
       ...get(),
@@ -198,21 +202,24 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
     save(next)
   },
   toggle: (id) => {
-    const item = get().items.find(t => t.id === id)
+    const item = get().items.find((t) => t.id === id)
     if (!item) return
-    
+
     const updatedItem = {
       ...item,
       completed: !item.completed,
       lastModified: Date.now(),
-      history: [...item.history, {
-        id: crypto.randomUUID(),
-        action: 'updated' as const,
-        timestamp: Date.now(),
-        details: `标记为${!item.completed ? '已完成' : '未完成'}`
-      }]
+      history: [
+        ...item.history,
+        {
+          id: uuidv4(),
+          action: 'updated' as const,
+          timestamp: Date.now(),
+          details: `标记为${!item.completed ? '已完成' : '未完成'}`,
+        },
+      ],
     }
-    
+
     const next: TodosState = {
       ...get(),
       items: get().items.map((t) => (t.id === id ? updatedItem : t)),
@@ -226,21 +233,24 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
     save(next)
   },
   edit: (id, title) => {
-    const item = get().items.find(t => t.id === id)
+    const item = get().items.find((t) => t.id === id)
     if (!item) return
-    
+
     const updatedItem = {
       ...item,
       title,
       lastModified: Date.now(),
-      history: [...item.history, {
-        id: crypto.randomUUID(),
-        action: 'updated' as const,
-        timestamp: Date.now(),
-        details: `修改标题: ${item.title} → ${title}`
-      }]
+      history: [
+        ...item.history,
+        {
+          id: uuidv4(),
+          action: 'updated' as const,
+          timestamp: Date.now(),
+          details: `修改标题: ${item.title} → ${title}`,
+        },
+      ],
     }
-    
+
     const next: TodosState = {
       ...get(),
       items: get().items.map((t) => (t.id === id ? updatedItem : t)),
@@ -280,8 +290,8 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
     const next: TodosState = {
       ...get(),
       expandedProjects: isExpanded
-        ? expandedProjects.filter(id => id !== projectId)
-        : [...expandedProjects, projectId]
+        ? expandedProjects.filter((id) => id !== projectId)
+        : [...expandedProjects, projectId],
     }
     set(next)
     save(next)
@@ -289,12 +299,12 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
   addProject: (project) => {
     const newProject: Project = {
       ...project,
-      id: crypto.randomUUID(),
-      taskCount: 0
+      id: uuidv4(),
+      taskCount: 0,
     }
     const next: TodosState = {
       ...get(),
-      projects: [...get().projects, newProject]
+      projects: [...get().projects, newProject],
     }
     set(next)
     save(next)
@@ -302,7 +312,7 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
   updateProject: (id, updates) => {
     const next: TodosState = {
       ...get(),
-      projects: get().projects.map(p => p.id === id ? { ...p, ...updates } : p)
+      projects: get().projects.map((p) => (p.id === id ? { ...p, ...updates } : p)),
     }
     set(next)
     save(next)
@@ -310,33 +320,36 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
   deleteProject: (id) => {
     const next: TodosState = {
       ...get(),
-      projects: get().projects.filter(p => p.id !== id),
-      items: get().items.map(item => 
-        item.projectId === id ? { ...item, projectId: null } : item
-      )
+      projects: get().projects.filter((p) => p.id !== id),
+      items: get().items.map((item) =>
+        item.projectId === id ? { ...item, projectId: null } : item,
+      ),
     }
     set(next)
     save(next)
   },
   moveTaskToProject: (taskId, projectId) => {
-    const item = get().items.find(t => t.id === taskId)
+    const item = get().items.find((t) => t.id === taskId)
     if (!item) return
-    
+
     const updatedItem: TodoItem = {
       ...item,
       projectId: projectId || null,
       lastModified: Date.now(),
-      history: [...item.history, {
-        id: crypto.randomUUID(),
-        action: 'moved' as const,
-        timestamp: Date.now(),
-        details: `移动到项目: ${projectId || '无项目'}`
-      }]
+      history: [
+        ...item.history,
+        {
+          id: uuidv4(),
+          action: 'moved' as const,
+          timestamp: Date.now(),
+          details: `移动到项目: ${projectId || '无项目'}`,
+        },
+      ],
     }
-    
+
     const next: TodosState = {
       ...get(),
-      items: get().items.map(t => t.id === taskId ? updatedItem : t)
+      items: get().items.map((t) => (t.id === taskId ? updatedItem : t)),
     }
     set(next)
     save(next)
@@ -349,7 +362,7 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
         const todoItems = tasks.map(taskToTodo)
         const next: TodosState = { ...get(), items: todoItems }
         set(next)
-        save(next)  // 保存到缓存
+        save(next) // 保存到缓存
       }
     } catch (error) {
       console.error('同步数据失败:', error)
@@ -357,18 +370,18 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
   },
   addWithAPI: async (title, dueDate) => {
     try {
-      const todoData = { 
-        title, 
-        completed: false, 
+      const todoData = {
+        title,
+        completed: false,
         dueDate,
         priority: 4 as const,
         description: undefined,
         lastModified: Date.now(),
-        history: []
+        history: [],
       }
       const taskData = todoToTaskCreate(todoData)
       await createTask(taskData)
-      
+
       // 创建成功后重新获取最新数据
       await get().syncWithAPI()
     } catch (error) {
@@ -379,7 +392,7 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
     try {
       const taskData = todoToTask(item)
       await updateTask(taskData)
-      
+
       // 更新成功后重新获取最新数据
       await get().syncWithAPI()
     } catch (error) {
@@ -390,8 +403,8 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
     try {
       // 注：这里需要根据后端API调整删除接口
       // await deleteTask(id)  // 假设后端有删除接口
-      console.log('删除任务 ID:', id)  // 使用参数避免 linter 警告
-      
+      console.log('删除任务 ID:', id) // 使用参数避免 linter 警告
+
       // 删除成功后重新获取最新数据
       await get().syncWithAPI()
     } catch (error) {
@@ -403,5 +416,3 @@ export const useTodosStore = create<TodosState & TodosActions>()((set, get) => (
     await get().syncWithAPI()
   },
 }))
-
-

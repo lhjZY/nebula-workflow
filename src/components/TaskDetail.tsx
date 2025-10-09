@@ -1,18 +1,21 @@
-import { useState } from 'react'
-import { 
-  Calendar, 
-  Clock, 
-  Edit3, 
-  Trash2, 
-  Copy, 
-  Move, 
-  Check, 
+import {
+  Calendar,
+  Clock,
+  Edit3,
+  Trash2,
+  Copy,
+  Move,
+  Check,
   X,
   Tag,
   Flag,
-  History
+  History,
 } from 'lucide-react'
+import { useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+
 import { useTodosStore, type TodoItem } from '../stores/todos'
+
 import { Button } from '@/components/components/ui/button'
 
 interface TaskDetailProps {
@@ -27,22 +30,15 @@ const PRIORITY_LABELS = {
 } as const
 
 export function TaskDetail({ taskId }: TaskDetailProps) {
-  const { 
-    items, 
-    projects, 
-    updateWithAPI, 
-    remove,
-    moveTaskToProject,
-    add 
-  } = useTodosStore()
-  
+  const { items, projects, updateWithAPI, remove, moveTaskToProject, add } = useTodosStore()
+
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
   const [showMoveDialog, setShowMoveDialog] = useState(false)
 
-  const task = items.find(item => item.id === taskId)
-  const project = task?.projectId ? projects.find(p => p.id === task.projectId) : null
+  const task = items.find((item) => item.id === taskId)
+  const project = task?.projectId ? projects.find((p) => p.id === task.projectId) : null
 
   if (!taskId || !task) {
     return (
@@ -89,12 +85,15 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
         title: editTitle.trim() || task.title,
         description: editDescription.trim() || task.description,
         lastModified: Date.now(),
-        history: [...task.history, {
-          id: crypto.randomUUID(),
-          action: 'updated',
-          timestamp: Date.now(),
-          details: `编辑任务信息`
-        }]
+        history: [
+          ...task.history,
+          {
+            id: uuidv4(),
+            action: 'updated',
+            timestamp: Date.now(),
+            details: `编辑任务信息`,
+          },
+        ],
       }
       await updateWithAPI(updatedTask)
       setIsEditing(false)
@@ -137,30 +136,37 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
               autoFocus
             />
           ) : (
-            <h2 className={`text-xl font-semibold mb-2 ${task.completed ? 'line-through opacity-60' : ''} text-foreground`}>
+            <h2
+              className={`text-xl font-semibold mb-2 ${
+                task.completed ? 'line-through opacity-60' : ''
+              } text-foreground`}
+            >
               {task.title}
             </h2>
           )}
-          
+
           {/* 状态指示器 */}
           <div className="flex items-center gap-2 mt-2">
-            <span className={`
+            <span
+              className={`
               px-2 py-1 rounded-full text-xs font-medium
-              ${task.completed 
-                ? 'bg-green-500/20 text-green-100 border border-green-400/30' 
-                : 'bg-orange-500/20 text-orange-100 border border-orange-400/30'
+              ${
+                task.completed
+                  ? 'bg-green-500/20 text-green-100 border border-green-400/30'
+                  : 'bg-orange-500/20 text-orange-100 border border-orange-400/30'
               }
-            `}>
+            `}
+            >
               {task.completed ? '已完成' : '进行中'}
             </span>
-            
+
             {priorityInfo && (
-              <span 
+              <span
                 className="px-2 py-1 rounded-full text-xs font-medium border flex items-center gap-1"
-                style={{ 
+                style={{
                   backgroundColor: `${priorityInfo.color}20`,
                   borderColor: `${priorityInfo.color}50`,
-                  color: 'currentColor'
+                  color: 'currentColor',
                 }}
               >
                 <priorityInfo.icon className="w-3 h-3" />
@@ -182,7 +188,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
           >
             {isEditing ? <Check className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
           </button>
-          
+
           {isEditing && (
             <button
               onClick={() => setIsEditing(false)}
@@ -213,9 +219,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
               rows={3}
             />
           ) : (
-            <p className="text-sm text-foreground">
-              {task.description || '暂无描述'}
-            </p>
+            <p className="text-sm text-foreground">{task.description || '暂无描述'}</p>
           )}
         </div>
 
@@ -229,7 +233,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
               </div>
               <span className="text-sm text-muted-foreground">{formatDate(task.createdAt)}</span>
             </div>
-            
+
             {task.dueDate && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -239,7 +243,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                 <span className="text-sm text-muted-foreground">{task.dueDate}</span>
               </div>
             )}
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-muted-foreground" />
@@ -260,7 +264,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
             <div className="flex items-center gap-2">
               {project ? (
                 <>
-                  <div 
+                  <div
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: project.color }}
                   />
@@ -286,7 +290,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
             <Copy className="w-4 h-4" />
             复制任务
           </button>
-          
+
           <button
             onClick={() => setShowMoveDialog(true)}
             className="glass rounded-md px-3 py-2 hover:glass-strong transition-all duration-200
@@ -297,7 +301,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
             移动项目
           </button>
         </div>
-        
+
         <button
           onClick={handleDelete}
           className="w-full glass rounded-md px-3 py-2 hover:bg-destructive/20 hover:border-destructive/50
@@ -315,7 +319,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
           <History className="w-4 h-4 text-muted-foreground" />
           <span className="text-sm font-medium text-muted-foreground">操作历史</span>
         </div>
-        
+
         <div className="space-y-2 overflow-y-auto max-h-60">
           {task.history.map((record) => (
             <div
@@ -342,7 +346,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="glass-strong rounded-xl p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-4 text-foreground">移动到项目</h3>
-            
+
             <div className="space-y-2 mb-4">
               <button
                 onClick={() => handleMove(null)}
@@ -351,7 +355,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
               >
                 无项目
               </button>
-              
+
               {projects.map((project) => (
                 <button
                   key={project.id}
@@ -359,7 +363,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                   className="w-full text-left glass rounded-lg px-3 py-2 hover:glass-strong 
                              transition-all duration-200 text-sm flex items-center gap-2"
                 >
-                  <div 
+                  <div
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: project.color }}
                   />
@@ -367,7 +371,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                 </button>
               ))}
             </div>
-            
+
             <div className="flex gap-2">
               <Button
                 variant="outline"
