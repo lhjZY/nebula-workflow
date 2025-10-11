@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { errorHandler, RetryHandler, safeExecute, isNetworkError, isVersionConflictError } from '../src/lib/error-handler'
 
 describe('ErrorHandler', () => {

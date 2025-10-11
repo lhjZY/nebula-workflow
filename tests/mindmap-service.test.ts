@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import * as mindmapApi from '../src/services/mindmap'
 
 // Mock http module

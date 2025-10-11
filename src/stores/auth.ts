@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+import { router } from '../main'
 type AuthState = {
   isAuthenticated: boolean
   userEmail?: string
@@ -12,7 +13,6 @@ type AuthActions = {
 }
 
 const STORAGE_KEY = 'workflow_auth_v1'
-
 function loadInitialState(): AuthState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -25,6 +25,7 @@ function loadInitialState(): AuthState {
 
 export const useAuthStore = create<AuthState & AuthActions>()((set) => ({
   ...loadInitialState(),
+
   login: (email: string, token: string) => {
     const next: AuthState = { isAuthenticated: true, userEmail: email, token }
     set(next)
@@ -42,7 +43,13 @@ export const useAuthStore = create<AuthState & AuthActions>()((set) => ({
     } catch {
       /* ignore storage write error */
     }
+
+    // 跳转到登录页面
+    try {
+      router.navigate({ to: '/login' })
+    } catch {
+      // 如果导航失败，使用原生跳转
+      window.location.href = '/login'
+    }
   },
 }))
-
-

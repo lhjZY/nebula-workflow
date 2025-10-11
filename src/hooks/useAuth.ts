@@ -54,5 +54,3 @@ export function useTokenValidation() {
 
   return query
 }
-
-

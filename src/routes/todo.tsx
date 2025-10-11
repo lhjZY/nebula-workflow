@@ -1,11 +1,13 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Menu, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+import { Sidebar } from '../components/Sidebar'
+import { TaskDetail } from '../components/TaskDetail'
+import { TodoList } from '../components/TodoList'
 import { useAuthStore } from '../stores/auth'
 import { useTodosStore } from '../stores/todos'
-import { Sidebar } from '../components/Sidebar'
-import { TodoList } from '../components/TodoList'
-import { TaskDetail } from '../components/TaskDetail'
-import { useEffect, useState } from 'react'
-import { Menu, X } from 'lucide-react'
+
 
 export const Route = createFileRoute('/todo')({
   beforeLoad: () => {
