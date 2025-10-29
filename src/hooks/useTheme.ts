@@ -22,26 +22,23 @@ export function useTheme() {
     return savedThemeMode || 'system'
   })
 
-  const [actualTheme, setActualTheme] = useState<Theme>(() => {
-    return getActualTheme(themeMode)
-  })
+  // 直接计算实际主题，消除冗余状态
+  const actualTheme = getActualTheme(themeMode)
 
   useEffect(() => {
     const updateTheme = () => {
       const newTheme = getActualTheme(themeMode)
-      setActualTheme(newTheme)
-      
       const root = document.documentElement
-      
+
       // 移除之前的主题类
       root.classList.remove('light', 'dark')
-      
+
       // 添加当前主题类
       root.classList.add(newTheme)
     }
 
     updateTheme()
-    
+
     // 保存到localStorage
     localStorage.setItem('themeMode', themeMode)
 
@@ -49,7 +46,7 @@ export function useTheme() {
     if (themeMode === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       mediaQuery.addEventListener('change', updateTheme)
-      
+
       return () => {
         mediaQuery.removeEventListener('change', updateTheme)
       }
@@ -61,17 +58,17 @@ export function useTheme() {
   }
 
   const toggleTheme = () => {
-    setThemeMode(prev => {
-      if (prev === 'system') return 'light'
-      if (prev === 'light') return 'dark'
-      return 'system'
+    setThemeMode((prev) => {
+      // 简化为双态切换，消除system导致的混淆
+      const current = prev === 'system' ? getSystemTheme() : prev
+      return current === 'light' ? 'dark' : 'light'
     })
   }
 
-  return { 
-    theme: actualTheme, 
+  return {
+    theme: actualTheme,
     themeMode,
     setTheme,
-    toggleTheme 
+    toggleTheme,
   }
 }

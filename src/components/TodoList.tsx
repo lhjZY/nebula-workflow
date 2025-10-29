@@ -1,4 +1,4 @@
-import { CalendarDays, Plus, Search, Check, X } from 'lucide-react'
+import { CalendarDays, Plus, Search, Check } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -19,7 +19,6 @@ export function TodoList({ className }: TodoListProps) {
     timeFilter,
     selectedItemId,
     projects,
-    remove,
     setFilter,
     clearCompleted,
     addWithAPI,
@@ -389,20 +388,6 @@ export function TodoList({ className }: TodoListProps) {
                       )}
                     </div>
                   </div>
-
-                  {/* 删除按钮 */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (confirm('确定要删除这个任务吗？')) {
-                        remove(item.id)
-                      }
-                    }}
-                    className="opacity-0 hover:opacity-100 transition-opacity duration-200
-                               glass rounded-md p-1.5 hover:glass-strong text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
                 </div>
               </div>
             )
