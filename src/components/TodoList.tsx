@@ -1,5 +1,5 @@
 import { CalendarDays, Plus, Search, Check } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { useTodosStore, type TodoItem } from '../stores/todos'
@@ -32,6 +32,7 @@ export function TodoList({ className }: TodoListProps) {
   const [due, setDue] = useState<Date | undefined>(undefined)
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   // 获取过滤后的任务列表
   const filteredItems = useMemo(() => {
@@ -150,6 +151,14 @@ export function TodoList({ className }: TodoListProps) {
 
   const handleItemClick = (item: TodoItem) => {
     setSelectedItem(item.id === selectedItemId ? null : item.id)
+    const el = inputRefs.current[item.id]
+    if (el) {
+      el.focus()
+      const len = el.value.length
+      try {
+        el.setSelectionRange(len, len)
+      } catch {}
+    }
   }
 
   const getProjectInfo = (projectId: string | null | undefined) => {
@@ -300,14 +309,15 @@ export function TodoList({ className }: TodoListProps) {
                   cursor-pointer border-l-2 backdrop-blur-2xl backdrop-saturate-150
                   ${
                     isSelected
-                      ? 'glass-strong border-l-primary bg-primary/10 shadow-[0_0_20px_rgba(var(--primary),0.2)]'
+                      ? 'glass-strong border-l-primary bg-primary/10'
                       : 'border-l-transparent hover:border-l-primary/50'
                   }
                   ${item.completed ? 'opacity-60' : ''}
                   ${overdue && !item.completed ? 'border-l-destructive bg-destructive/5' : ''}
+                h-14
                 `}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-center gap-3 h-full">
                   {/* 复选框 */}
                   <button
                     onClick={(e) => {
@@ -331,62 +341,61 @@ export function TodoList({ className }: TodoListProps) {
                   <div className="flex-1 min-w-0">
                     <input
                       value={item.title}
-                      onChange={(e) => {
-                        e.stopPropagation()
-                        onEdit(item.id, e.target.value)
+                      onChange={(e) => onEdit(item.id, e.target.value)}
+                      ref={(el) => {
+                        inputRefs.current[item.id] = el
                       }}
-                      onClick={(e) => e.stopPropagation()}
                       className={`
-                        w-full bg-transparent outline-none font-medium
+                        w-full bg-transparent outline-none font-medium truncate
                         ${item.completed ? 'line-through opacity-60' : ''} text-foreground
                       `}
                     />
+                  </div>
 
-                    {/* 任务元信息 */}
-                    <div className="flex items-center gap-2 mt-1 text-xs">
-                      {/* 项目标签 */}
-                      {project && (
-                        <span
-                          className="px-2 py-0.5 rounded-full flex items-center gap-1"
-                          style={{
-                            backgroundColor: `${project.color}20`,
-                            color: project.color,
-                            border: `1px solid ${project.color}40`,
-                          }}
-                        >
-                          <div
-                            className="w-1.5 h-1.5 rounded-full"
-                            style={{ backgroundColor: project.color }}
-                          />
-                          {project.name}
-                        </span>
-                      )}
+                  {/* 任务元信息（右侧） */}
+                  <div className="shrink-0 flex items-center gap-2 text-xs whitespace-nowrap">
+                    {/* 项目标签 */}
+                    {project && (
+                      <span
+                        className="px-2 py-0.5 rounded-full flex items-center gap-1"
+                        style={{
+                          backgroundColor: `${project.color}20`,
+                          color: project.color,
+                          border: `1px solid ${project.color}40`,
+                        }}
+                      >
+                        <div
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{ backgroundColor: project.color }}
+                        />
+                        {project.name}
+                      </span>
+                    )}
 
-                      {/* 截止日期 */}
-                      {item.dueDate && (
-                        <span
-                          className={`
-                          px-2 py-0.5 rounded-full flex items-center gap-1
+                    {/* 截止日期 */}
+                    {item.dueDate && (
+                      <span
+                        className={`
+                          px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap
                           ${
                             overdue && !item.completed
                               ? 'bg-destructive/20 text-destructive-foreground border border-destructive/30'
                               : 'text-muted-foreground border border-border'
                           }
                         `}
-                        >
-                          <CalendarDays className="w-3 h-3" />
-                          {item.dueDate}
-                          {overdue && !item.completed && ' (逾期)'}
-                        </span>
-                      )}
+                      >
+                        <CalendarDays className="w-3 h-3" />
+                        {item.dueDate}
+                        {overdue && !item.completed && ' (逾期)'}
+                      </span>
+                    )}
 
-                      {/* 优先级指示器 */}
-                      {item.priority < 4 && (
-                        <span className="px-2 py-0.5 rounded-full text-muted-foreground border border-border">
-                          优先级: {item.priority === 1 ? '高' : item.priority === 2 ? '中' : '低'}
-                        </span>
-                      )}
-                    </div>
+                    {/* 优先级指示器 */}
+                    {item.priority < 4 && (
+                      <span className="px-2 py-0.5 rounded-full text-muted-foreground border border-border whitespace-nowrap">
+                        优先级: {item.priority === 1 ? '高' : item.priority === 2 ? '中' : '低'}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

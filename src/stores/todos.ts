@@ -136,6 +136,7 @@ function loadInitialState(): TodosState {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
+      console.log(parsed, 'parsed')
       // 兼容旧数据格式
       return {
         items: parsed.items || [],

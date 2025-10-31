@@ -42,5 +42,11 @@ export async function createTask(task: taskCreate) {
 
 export async function updateTask(task: task) {
   const { id, ...taskData } = task
-  return http(`/tasks/${id}`, { method: 'PATCH', body: taskData })
+  // 最小变更：仅将 dueTime 转换为服务端的 due_time，其他字段保持不变
+  const { dueTime, ...rest } = taskData
+  const body: Record<string, unknown> = { ...rest }
+  if (typeof dueTime !== 'undefined') {
+    body['due_time'] = dueTime
+  }
+  return http(`/tasks/${id}`, { method: 'PATCH', body })
 }

@@ -26,6 +26,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [tempDate, setTempDate] = useState<Date | undefined>(undefined)
   const [isPriorityOpen, setIsPriorityOpen] = useState(false)
 
   const task = items.find((item) => item.id === taskId)
@@ -37,6 +38,14 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
       setDescription(task.description || '')
     }
   }, [taskId, task?.title, task?.description])
+
+  // 当弹层打开时，用当前任务的日期初始化临时日期
+  useEffect(() => {
+    const dueDateStr = task?.dueDate
+    if (isCalendarOpen) {
+      setTempDate(dueDateStr ? new Date(dueDateStr) : undefined)
+    }
+  }, [isCalendarOpen, task?.dueDate])
 
   if (!taskId || !task) {
     return (
@@ -114,8 +123,13 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
     await updateWithAPI(updatedItem)
   }
 
-  const handleDateSelect = async (date: Date | undefined) => {
-    const dueDate = date ? date.toISOString().slice(0, 10) : undefined
+  const handleDateSelect = (date: Date | undefined) => {
+    // 仅更新临时日期，不立即关闭或调用接口
+    setTempDate(date)
+  }
+
+  const handleDateConfirm = async () => {
+    const dueDate = tempDate ? tempDate.toISOString().slice(0, 10) : undefined
     const updatedItem: TodoItem = {
       ...task,
       dueDate,
@@ -153,7 +167,12 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
     setIsPriorityOpen(false)
   }
 
-  const selectedDate = task.dueDate ? new Date(task.dueDate) : undefined
+  const selectedDate = tempDate
+  const displayDueDate = isCalendarOpen
+    ? tempDate
+      ? tempDate.toISOString().slice(0, 10)
+      : undefined
+    : task.dueDate
   const currentPriority = PRIORITY_OPTIONS.find((p) => p.value === task.priority)
 
   return (
@@ -183,14 +202,16 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                 <Button variant="outline" size="sm" onClick={() => handleDateSelect(undefined)}>
                   清除日期
                 </Button>
-                <Button size="sm" onClick={() => setIsCalendarOpen(false)}>
+                <Button size="sm" onClick={handleDateConfirm}>
                   确定选择
                 </Button>
               </div>
             </PopoverContent>
           </Popover>
 
-          {task.dueDate && <span className="text-sm text-muted-foreground">{task.dueDate}</span>}
+          {displayDueDate && (
+            <span className="text-sm text-muted-foreground">{displayDueDate}</span>
+          )}
         </div>
 
         {/* 右侧：优先级 */}

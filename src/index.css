@@ -1,42 +1,44 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
 /* 基础高度与渲染优化 */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
 /* 玻璃拟态工具类 */
 @layer utilities {
   .glass {
-    @apply backdrop-blur-2xl backdrop-saturate-150 bg-white/10 dark:bg-neutral-900/30 border border-white/30 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)];
+    @apply backdrop-blur-2xl backdrop-saturate-150 bg-white/10 dark:bg-neutral-900/30 border border-white/30 dark:border-white/10;
   }
   .glass-surface {
     @apply bg-gradient-to-b from-white/40 to-white/10 dark:from-white/10 dark:to-white/5;
   }
   .glass-strong {
     @apply backdrop-blur-3xl bg-white/15 
-     dark:bg-neutral-900/40 border border-white/40 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.18)];
+     dark:bg-neutral-900/40 border border-white/40 dark:border-white/10;
   }
-  
+
   /* 新增Glass样式变体 */
   .glass-hover {
     @apply transition-all duration-200 ease-out;
   }
-  
+
   .glass-hover:hover {
     @apply backdrop-blur-3xl bg-white/20 dark:bg-white/15 
            shadow-[0_16px_50px_rgba(0,0,0,0.15)] 
            border-white/50 dark:border-white/20;
   }
-  
+
   .glass-selected {
     @apply backdrop-blur-3xl bg-white/25 dark:bg-white/20 
            border-primary/50 
            shadow-[0_0_20px_rgba(var(--primary),0.3)];
   }
-  
+
   /* 优化的选中状态样式 */
   .glass-selected-active {
     @apply backdrop-blur-3xl bg-primary/25 dark:bg-primary/30
@@ -44,43 +46,42 @@ html, body, #root {
            shadow-[0_0_25px_rgba(var(--primary),0.4)] dark:shadow-[0_0_25px_rgba(var(--primary),0.6)]
            text-white dark:text-black font-medium;
   }
-  
+
   /* 高对比度悬停状态 */
   .glass-hover-enhanced {
     @apply transition-all duration-200 ease-out;
   }
-  
+
   .glass-hover-enhanced:hover {
     @apply backdrop-blur-3xl bg-primary/15 dark:bg-primary/20
            border-primary/50 dark:border-primary/60
            shadow-[0_8px_32px_rgba(var(--primary),0.2)] dark:shadow-[0_8px_32px_rgba(var(--primary),0.4)]
            text-white dark:text-black;
   }
-  
+
   .glass-loading {
     @apply animate-pulse backdrop-blur-xl 
            bg-gradient-to-r from-white/10 via-white/20 to-white/10 
            dark:from-white/5 dark:via-white/10 dark:to-white/5;
   }
-  
+
   /* 性能优化 */
-  .glass, .glass-strong {
+  .glass,
+  .glass-strong {
     @apply will-change-auto transform-gpu;
   }
-  
+
   .glass-transition {
-    transition: backdrop-filter 200ms ease-out,
-                background-color 200ms ease-out,
-                border-color 200ms ease-out,
-                box-shadow 200ms ease-out;
+    transition: backdrop-filter 200ms ease-out, background-color 200ms ease-out,
+      border-color 200ms ease-out, box-shadow 200ms ease-out;
   }
-  
+
   /* 移动端优化 */
   @media (max-width: 768px) {
     .glass {
       @apply backdrop-blur-xl;
     }
-    
+
     .glass-strong {
       @apply backdrop-blur-2xl;
     }
@@ -202,4 +203,3 @@ html, body, #root {
     @apply bg-background text-foreground;
   }
 }
-
